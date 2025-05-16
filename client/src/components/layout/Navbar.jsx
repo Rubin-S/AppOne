@@ -1,6 +1,7 @@
 import React from 'react'
 import SearchBar from '../common/SearchBar'
 import ProfileBadge from '../common/ProfileBadge'
+import { navLinks, menuLinks } from '../../assets/navbar/assets.jsx'
 import { NavLink, useLocation } from 'react-router-dom'
 import { MdLocationPin } from 'react-icons/md';
 import { useAppContext } from '../../context/AppContext'
@@ -15,62 +16,57 @@ const Navbar = () => {
     console.log('Logged out')
   }
 
-  const navLinks = [
-    { name: 'Support', to: '/#', showIfLoggedIn: false },
-    { name: 'Chats', to: '/#', showIfLoggedIn: true },
-    { name: 'Notification', to: '/#', showIfLoggedIn: false },
-    { name: 'English', to: '/#', showIfLoggedIn: false },
-  ]
-
-  const menuLinks = [
-    {
-        title: "User Help",
-        links: [
-            { text: "How to Videos", url: "#" },
-            { text: "Account setting", url: "#" },
-            { text: "FAQ", url: "#" },
-            { text: "Technical Help", url: "#" },
-        ],
-    },
-    {
-        title: "Service & Listing",
-        links: [
-            { text: "Service catagories", url: "#" },
-            { text: "Price & plans", url: "#" },
-        ],
-    },
-    {
-        title: "Contact Us",
-        links: [
-            { text: "WhatsApp Chat", url: "#" },
-            { text: "Email Us", url: "#" },
-            { text: "Call Us", url: "#" },
-            { text: "Live Chat", url: "#" },
-        ],
-    },
-  ]
-
   const renderLinks = (isMobile = false) => (
-    <div className='items-center justify-center gap-4 flex flex-col sm:flex-row'>
-      {navLinks.map(({ name, to, showIfLoggedIn }) => {
-        if (showIfLoggedIn && !isLoggedIn) return null
-        const className = `${isMobile ? 'block' : ''} text-white font-semibold`
-        return <NavLink key={name} to={to} className={className}>{name}</NavLink>
+    <div
+      className={`items-center justify-center gap-4 flex flex-col sm:flex-row`}
+    >
+      {navLinks.map(({ name, to, showIfLoggedIn, img: Icon }) => {
+        if (showIfLoggedIn && !isLoggedIn) return null;
+        const className = `${
+          isMobile ? "block" : ""
+        } text-white font-semibold flex items-center gap-2`;
+
+        return (
+          <NavLink key={name} to={to} className={className}>
+            {/* Render icon only on desktop */}
+            {!isMobile && Icon && (
+              <Icon
+                className="w-5 h-5 rounded-full bg-primary p-0.5"
+                aria-hidden="true"
+              />
+            )}
+            {name}
+          </NavLink>
+        );
       })}
+
       {!isLoggedIn ? (
         <>
-          <NavLink onClick={logOut} className="text-white font-semibold">Sign In</NavLink>
-          <NavLink to="/signup" className="bg-primary cursor-pointer font-semibold text-black px-4 py-1 size-fit rounded-full">Sign Up</NavLink>
+          <img src="/src/assets/navbar/login.svg" alt="" />
+          <NavLink onClick={logOut} className="text-white font-semibold">
+            Log In
+          </NavLink>
+          <NavLink
+            to="/signup"
+            className="bg-primary cursor-pointer font-semibold text-black px-4 py-1 size-fit rounded-full"
+          >
+            Sign Up
+          </NavLink>
         </>
       ) : (
-        <ProfileBadge name={signupData.name} location={signupData.username} icon={MdLocationPin} className='text-white'/>
+        <ProfileBadge
+          name={signupData.name}
+          location={signupData.username}
+          icon={MdLocationPin}
+          className="text-white"
+        />
       )}
     </div>
-  )
+  );
 
   return (
     <nav className='flex items-center gap-20 justify-between px-6 md:px-8 lg:px-12 xl:px-16 py-4 border-b bg-black relative transition-all'>
-      <NavLink to="/" className="text-3xl italic text-white font-bold text-gray-800">AskIT</NavLink>
+      <NavLink to="/" className="text-3xl italic text-white font-bold">AskIT</NavLink>
 
       {location.pathname !== '/' && <SearchBar />}
 

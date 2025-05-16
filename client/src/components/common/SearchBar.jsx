@@ -2,6 +2,7 @@ import React from "react";
 import ProfileBadge from "./ProfileBadge";
 import { MdLocationPin } from "react-icons/md";
 import { IoSearch } from "react-icons/io5";
+import PinIcon from "/src/assets/navbar/pin.svg?react";
 
 const SearchBar = ({ onSearch }) => {
   const handleSubmit = (e) => {
@@ -22,7 +23,7 @@ const SearchBar = ({ onSearch }) => {
       <ProfileBadge
         name="Location"
         location="City, State"
-        icon={MdLocationPin}
+        icon= {PinIcon}
         className="text-white"
       />
 
@@ -36,7 +37,7 @@ const SearchBar = ({ onSearch }) => {
 
       <button
         type="submit"
-        className="bg-primary text-white rounded-full p-2 hover:bg-opacity-90 transition"
+        className="bg-primary rounded-full p-2 hover:bg-opacity-90 transition"
         aria-label="Submit search"
       >
         <IoSearch className="w-5 h-5" />

@@ -1,5 +1,3 @@
-import React from "react";
-
 const LocationBadge = ({
   name,
   location,
@@ -15,7 +13,7 @@ const LocationBadge = ({
       role={isClickable ? "button" : undefined}
       tabIndex={isClickable ? 0 : undefined}
       className={`
-        flex items-center gap-2 border border-primary rounded-full px-1 py-1
+        flex items-center gap-2 border border-primary rounded-full pl-1 pr-3 py-1
          text-primary max-w-fit shadow-sm
         ${isClickable ? "cursor-pointer hover:shadow-md transition-all" : ""}
         ${className}

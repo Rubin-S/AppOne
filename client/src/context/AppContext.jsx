@@ -9,8 +9,8 @@ export const AppContextProvider = ({children}) => {
     const [signupData, setSignupData] = useState({
       phone: "",
       phoneVerified: false,
-      name: '',
-      username: '',
+      name: 'Rubin',
+      username: '@rubin',
       email: '',
       emailVerified: false,
       password: '',

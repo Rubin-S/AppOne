@@ -1,32 +1,42 @@
-import React from 'react';
+import React from "react";
 
 const LocationBadge = ({
   name,
   location,
   icon: Icon = null,
   onClick,
-  className = '',
+  className = "",
 }) => {
-  const isClickable = typeof onClick === 'function';
+  const isClickable = typeof onClick === "function";
 
   return (
     <div
       onClick={onClick}
+      role={isClickable ? "button" : undefined}
+      tabIndex={isClickable ? 0 : undefined}
       className={`
-        flex items-center rounded-full border-2 size-fit border-primary p-px pl-1
-        ${isClickable ? 'cursor-pointer hover:shadow-md transition-all' : ''}
+        flex items-center gap-2 border border-primary rounded-full px-1 py-1
+         text-primary max-w-fit shadow-sm
+        ${isClickable ? "cursor-pointer hover:shadow-md transition-all" : ""}
         ${className}
       `}
+      aria-label={
+        isClickable ? `View profile of ${name} in ${location}` : undefined
+      }
     >
-      <div className="bg-primary rounded-full size-fit flex items-center justify-center p-1">
-        {Icon && <Icon className={`size-5 ${className}`} />}
-      </div>
-      <div className={`${className}`}>
-        <p className="text-[10px] font-semibold">{name}</p>
-        <div className="h-0.5 my-0.5 rounded-full bg-primary w-1/3"></div>
-            <p className="text-[8px] font-thin">{location}</p>
+      {Icon && (
+        <div className="bg-primary text-white rounded-full p-2 flex items-center justify-center">
+          <Icon className="w-4 h-4" aria-hidden="true" />
         </div>
+      )}
+
+      <div className="flex flex-col text-left">
+        <span className="text-xs font-semibold leading-tight">{name}</span>
+        <span className="text-[10px] text-gray-600 leading-none">
+          {location}
+        </span>
       </div>
+    </div>
   );
 };
 

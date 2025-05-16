@@ -1,21 +1,48 @@
-import React from 'react'
-import ProfileBadge from './ProfileBadge';
-import { MdLocationPin } from 'react-icons/md';
-import { IoSearch } from 'react-icons/io5';
+import React from "react";
+import ProfileBadge from "./ProfileBadge";
+import { MdLocationPin } from "react-icons/md";
+import { IoSearch } from "react-icons/io5";
 
-const SearchBar = () => {
+const SearchBar = ({ onSearch }) => {
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (onSearch) {
+      const value = e.target.elements.search.value;
+      onSearch(value);
+    }
+  };
+
   return (
-    <form className="hidden lg:flex  h-fit w-2/5 bg-black border-2 border-primary p-1 rounded-full">
-        <ProfileBadge name="Location" location="City, State" icon={MdLocationPin} className='text-white'/>
-        <input type="text" 
-               placeholder="Search" 
-               className="flex items-center rounded-full lg:text-xl md:text-lg xs:text-base pl-5 border-1 bg-white height-full w-full border-gray p-px pl-1 ml-2">
-        </input>
-        <button className="bg-primary rounded-full size-fit flex items-center p-2 mx-1 justify-center">
-                <IoSearch className='size-5' />
-        </button>
-    </form>
-  )
-}
+    <form
+      onSubmit={handleSubmit}
+      role="search"
+      aria-label="Service search form"
+      className="hidden lg:flex w-full max-w-2xl items-center gap-2 border-2 border-primary bg-black p-1 rounded-full"
+    >
+      <ProfileBadge
+        name="Location"
+        location="City, State"
+        icon={MdLocationPin}
+        className="text-white"
+      />
 
-export default SearchBar
+      <input
+        type="text"
+        name="search"
+        placeholder="Search for services"
+        className="flex-1 bg-white rounded-full text-base lg:text-lg px-4 py-2 focus:outline-none"
+        aria-label="Search input"
+      />
+
+      <button
+        type="submit"
+        className="bg-primary text-white rounded-full p-2 hover:bg-opacity-90 transition"
+        aria-label="Submit search"
+      >
+        <IoSearch className="w-5 h-5" />
+      </button>
+    </form>
+  );
+};
+
+export default SearchBar;

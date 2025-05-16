@@ -1,139 +1,45 @@
-import React, { useState, useEffect } from 'react';
-import { useAppContext } from '../../context/AppContext';
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { signupSchema } from "./signupSchema";
+import { useAppContext } from "../../context/AppContext";
 
-const SignUpDetailsForm = ({setCurrentStep}) => {
-  const { signupData, setSignupData, isLoggedIn, setIsLoggedIn} = useAppContext();
-
-
-
-  const [touched, setTouched] = useState({
-    email: false,
-    password: false,
-    confirmPassword: false
-  });
-
+const SignUpDetailsForm = ({ setCurrentStep }) => {
+  const { signupData, setSignupData } = useAppContext();
   const [showPassword, setShowPassword] = useState({
     password: false,
-    confirmPassword: false
+    confirmPassword: false,
   });
 
-  const [errors, setErrors] = useState({
-    email: '',
-    password: '',
-    confirmPassword: ''
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    watch,
+  } = useForm({
+    resolver: zodResolver(signupSchema),
+    defaultValues: signupData,
+    mode: "onBlur",
   });
-
-  const [isFormValid, setIsFormValid] = useState(false);
-
-  const validatePassword = (password) => {
-    const passwordRules = {
-      minLength: password.length >= 8,
-      hasUpperCase: /[A-Z]/.test(password),
-      hasLowerCase: /[a-z]/.test(password),
-      hasNumber: /\d/.test(password),
-      hasSpecialChar: /[!@#$%^&*(),.?":{}|<>]/.test(password)
-    };
-
-    const passwordErrors = [];
-    if (!passwordRules.minLength) passwordErrors.push("At least 8 characters");
-    if (!passwordRules.hasUpperCase) passwordErrors.push("One uppercase letter");
-    if (!passwordRules.hasLowerCase) passwordErrors.push("One lowercase letter");
-    if (!passwordRules.hasNumber) passwordErrors.push("One number");
-    if (!passwordRules.hasSpecialChar) passwordErrors.push("One special character");
-
-    return passwordErrors;
-  };
-
-  const validateEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email) return "Email is required";
-    if (!emailRegex.test(email)) return "Invalid email format";
-    return "";
-  };
-
-  const validateForm = () => {
-    const newErrors = {
-      email: validateEmail(signupData.email),
-      password: validatePassword(signupData.password).join(", "),
-      confirmPassword: signupData.password !== signupData.confirmPassword 
-        ? "Passwords do not match" 
-        : ""
-    };
-
-    setErrors(newErrors);
-
-    const isValid = Object.values(newErrors).every(error => error === "") &&
-                   signupData.name !== "" &&
-                   signupData.username !== "" &&
-                   signupData.agreeToTerms;
-
-    setIsFormValid(isValid);
-  };
-
-  useEffect(() => {
-    validateForm();
-  }, [signupData]);
-
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setSignupData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }));
-
-    // Validate the field in real-time as the user types
-    if (name === 'email' || name === 'password' || name === 'confirmPassword') {
-      validateForm();
-    }
-  };
-
-  const handleBlur = (fieldName) => {
-    setTouched(prev => ({
-      ...prev,
-      [fieldName]: true
-    }));
-
-    // Validate the field when the user moves away from it
-    validateForm();
-  };
 
   const togglePasswordVisibility = (field) => {
-    setShowPassword(prev => ({
+    setShowPassword((prev) => ({
       ...prev,
-      [field]: !prev[field]
+      [field]: !prev[field],
     }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Mark all fields as touched to show all errors
-    setTouched({
-      email: true,
-      password: true,
-      confirmPassword: true
-    });
-
-    // Validate the form again before submission
-    validateForm();
-
-    if (!isFormValid) {
-      console.log('Form is invalid. Please fix the errors.');
-      return;
-    }
-
-    console.log('Form submitted:', signupData);
+  const onSubmit = (data) => {
+    setSignupData(data);
+    console.log("Form submitted:", data);
     setCurrentStep(2);
   };
-
-  // Helper function to show error message only if field is touched
-  const ErrorMessage = ({ field, message }) => (
-    touched[field] && message ? <p className="text-red-500 text-xs mt-1">{message}</p> : null
-  );
 
   return (
     <div className="max-w-md w-full ml-20 p-4 sm:p-6 relative">
       <button
-        onClick={setCurrentStep((prev) => prev - 1)} // Add your back handler
+        type="button"
+        onClick={() => setCurrentStep((prev) => prev - 1)}
         className="absolute top-4 left-4 p-2 rounded-full hover:bg-gray-200 transition-all"
       >
         <svg
@@ -152,14 +58,15 @@ const SignUpDetailsForm = ({setCurrentStep}) => {
         </svg>
       </button>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <h1 className="text-2xl sm:text-3xl font-semibold mb-2 text-center">
           Sign up to Ask IT
         </h1>
-        
+
         <div className="space-y-1 text-center">
           <p className="text-sm sm:text-base">
-            Your Google account Joseph will be connected to your new Ask IT account
+            Your Google account Joseph will be connected to your new Ask IT
+            account
           </p>
           <p className="text-sm sm:text-base">
             <a href="#" className="text-blue-600 hover:underline">
@@ -174,28 +81,32 @@ const SignUpDetailsForm = ({setCurrentStep}) => {
               Name*
             </label>
             <input
-              type="text"
               id="name"
-              name="name"
-              value={signupData.name}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
+              {...register("name")}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                errors.name ? "border-red-500" : ""
+              }`}
             />
+            {errors.name && (
+              <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>
+            )}
           </div>
           <div>
             <label htmlFor="username" className="block text-sm mb-1">
               Username*
             </label>
             <input
-              type="text"
               id="username"
-              name="username"
-              value={signupData.username}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
+              {...register("username")}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                errors.username ? "border-red-500" : ""
+              }`}
             />
+            {errors.username && (
+              <p className="text-red-500 text-xs mt-1">
+                {errors.username.message}
+              </p>
+            )}
           </div>
         </div>
 
@@ -204,18 +115,15 @@ const SignUpDetailsForm = ({setCurrentStep}) => {
             Email*
           </label>
           <input
-            type="email"
             id="email"
-            name="email"
-            value={signupData.email}
-            onChange={handleChange}
-            onBlur={() => handleBlur('email')}
+            {...register("email")}
             className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              touched.email && errors.email ? 'border-red-500' : ''
+              errors.email ? "border-red-500" : ""
             }`}
-            required
           />
-          <ErrorMessage field="email" message={errors.email} />
+          {errors.email && (
+            <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>
+          )}
         </div>
 
         <div>
@@ -224,26 +132,27 @@ const SignUpDetailsForm = ({setCurrentStep}) => {
           </label>
           <div className="relative">
             <input
-              type={showPassword.password ? "text" : "password"}
               id="password"
-              name="password"
-              value={signupData.password}
-              onChange={handleChange}
-              onBlur={() => handleBlur('password')}
+              type={showPassword.password ? "text" : "password"}
+              {...register("password")}
               className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                touched.password && errors.password ? 'border-red-500' : ''
+                errors.password ? "border-red-500" : ""
               }`}
-              required
             />
             <button
               type="button"
-              onClick={() => togglePasswordVisibility('password')}
+              onClick={() => togglePasswordVisibility("password")}
+              aria-label="Toggle password visibility"
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
             >
-              {showPassword.password ? '👁️' : '👁️‍🗨️'}
+              {showPassword.password ? "👁️" : "👁️‍🗨️"}
             </button>
           </div>
-          <ErrorMessage field="password" message={errors.password} />
+          {errors.password && (
+            <p className="text-red-500 text-xs mt-1">
+              {errors.password.message}
+            </p>
+          )}
         </div>
 
         <div>
@@ -252,53 +161,54 @@ const SignUpDetailsForm = ({setCurrentStep}) => {
           </label>
           <div className="relative">
             <input
-              type={showPassword.confirmPassword ? "text" : "password"}
               id="confirmPassword"
-              name="confirmPassword"
-              value={signupData.confirmPassword}
-              onChange={handleChange}
-              onBlur={() => handleBlur('confirmPassword')}
+              type={showPassword.confirmPassword ? "text" : "password"}
+              {...register("confirmPassword")}
               className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                touched.confirmPassword && errors.confirmPassword ? 'border-red-500' : ''
+                errors.confirmPassword ? "border-red-500" : ""
               }`}
-              required
             />
             <button
               type="button"
-              onClick={() => togglePasswordVisibility('confirmPassword')}
+              onClick={() => togglePasswordVisibility("confirmPassword")}
+              aria-label="Toggle confirm password visibility"
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
             >
-              {showPassword.confirmPassword ? '👁️' : '👁️‍🗨️'}
+              {showPassword.confirmPassword ? "👁️" : "👁️‍🗨️"}
             </button>
           </div>
-          <ErrorMessage field="confirmPassword" message={errors.confirmPassword} />
+          {errors.confirmPassword && (
+            <p className="text-red-500 text-xs mt-1">
+              {errors.confirmPassword.message}
+            </p>
+          )}
         </div>
 
         <div className="flex items-start gap-2">
           <input
             type="checkbox"
             id="agreeToTerms"
-            name="agreeToTerms"
-            checked={signupData.agreeToTerms}
-            onChange={handleChange}
+            {...register("agreeToTerms")}
             className="mt-1"
-            required
           />
           <label htmlFor="agreeToTerms" className="text-sm">
-            I agree with Ask IT{' '}
+            I agree with Ask IT{" "}
             <a href="#" className="underline">
               Terms of Service
             </a>
-            ,{' '}
+            ,{" "}
             <a href="#" className="underline">
               Privacy Policy
-            </a>{' '}
-            and{' '}
+            </a>{" "}
+            and{" "}
             <a href="#" className="underline">
               default Notification Settings
             </a>
           </label>
         </div>
+        {errors.agreeToTerms && (
+          <p className="text-red-500 text-xs">{errors.agreeToTerms.message}</p>
+        )}
 
         <button
           type="submit"
@@ -308,7 +218,7 @@ const SignUpDetailsForm = ({setCurrentStep}) => {
         </button>
 
         <p className="text-sm text-center">
-          Already have an account?{' '}
+          Already have an account?{" "}
           <a href="#" className="text-black underline">
             Sign In
           </a>
